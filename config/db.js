@@ -7,7 +7,7 @@ const connectDB = async (app) => {
 		await mongoose.connect(process.env.MONGO_URI)
 
 		// listen for requests
-		app.listen(process.env.PORT, () => {
+		app.listen(process.env.LIVE_SERVER, () => {
 			console.log('connected to db & listening on port', process.env.LIVE_SERVER)
 		})
 
