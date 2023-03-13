@@ -10,9 +10,8 @@ const connectDB = async (app) => {
 		app.listen(process.env.LIVE_SERVER, () => {
 			console.log('connected to db & listening on port', process.env.LIVE_SERVER)
 		})
-
     } catch(error) {
-        console.log(error)
+        console.log('error listing')
     }
 }
 
