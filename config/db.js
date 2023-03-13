@@ -8,7 +8,7 @@ const connectDB = async (app) => {
 
 		// listen for requests
 		app.listen(process.env.PORT, () => {
-			console.log('connected to db & listening on port', process.env.PORT)
+			console.log('connected to db & listening on port', process.env.LIVE_SERVER)
 		})
 
     } catch(error) {
