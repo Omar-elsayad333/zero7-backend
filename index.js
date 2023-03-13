@@ -36,6 +36,10 @@ app.use(express.json())
 app.use((req, res, next) => requestInfo(req, res, next))
 // app.use(passport.initialize());
 
+app.use('/', (req, res) => {
+    res.status(200).json('welcome to team backend')   
+})
+
 // User routes
 app.use('/api/user/roles', roleRoutes)
 app.use('/api/user', userRoutes)
