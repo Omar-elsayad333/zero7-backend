@@ -56,13 +56,13 @@ app.use('/api/products/categorys', categoryRoutes)
 app.use('/api/products', productsRoutes)
 
 // Google routes
-app.get('/auth/google', passport.authenticate('google', {
-    scope: ['profile', 'email']
-}));
-app.get('/auth/google/callback', passport.authenticate('google', {
-    failureRedirect: '/login',
-    successRedirect: '/'
-}));
+// app.get('/auth/google', passport.authenticate('google', {
+//     scope: ['profile', 'email']
+// }));
+// app.get('/auth/google/callback', passport.authenticate('google', {
+//     failureRedirect: '/login',
+//     successRedirect: '/'
+// }));
 
 // Connect to data base
 connectDB(app)
