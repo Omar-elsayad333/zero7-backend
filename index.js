@@ -4,7 +4,7 @@ const express = require('express')
 // const passport = require('passport');
 const { connectDB } = require('./config/db')
 const requestInfo = require('./middlewares/requestInfo')
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
+// const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 // Import app routes
 const userRoutes = require('./routes/user')
