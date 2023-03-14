@@ -50,9 +50,9 @@ app.use('/api/products/seasons', seasonRoutes)
 app.use('/api/products/genders', genderRoutes)
 app.use('/api/products/categorys', categoryRoutes)
 app.use('/api/products', productsRoutes)
-app.use('/', (req, res) => {
-    res.status(200).json('welcome to team backend')   
-})
+// app.use('/', (req, res) => {
+//     res.status(200).json('welcome to team backend')   
+// })
 
 // Google routes
 // app.get('/auth/google', passport.authenticate('google', {
