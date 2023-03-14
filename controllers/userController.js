@@ -21,12 +21,12 @@ const loginUser = async (req, res) => {
 
 
     // check if user is valid
-    const username = req.body.username;
-    const user = { username: username };
-    const accessToken = generateAccessToken(user);
-    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-    refreshTokens.push(refreshToken);
-    res.json({ accessToken: accessToken, refreshToken: refreshToken });
+    // const username = req.body.username;
+    // const user = { username: username };
+    // const accessToken = generateAccessToken(user);
+    // const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
+    // refreshTokens.push(refreshToken);
+    // res.json({ accessToken: accessToken, refreshToken: refreshToken });
 }
 
 // Signup a user
