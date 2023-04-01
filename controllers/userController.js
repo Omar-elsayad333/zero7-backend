@@ -19,7 +19,6 @@ const loginUser = async (req, res) => {
         res.status(400).json({error: error.message})
     }
 
-
     // check if user is valid
     // const username = req.body.username;
     // const user = { username: username };
@@ -31,10 +30,14 @@ const loginUser = async (req, res) => {
 
 // Signup a user
 const signupUser = async (req, res) => {
-    const { email, password } = req.body
+    const { name, email, password, confirmPasswrod } = req.body
+
+    if(password !== confirmPasswrod) {
+        return res.status(400).json('Passwords do not match')
+    }
 
     try {
-        const user = await User.signup(email, password)
+        const user = await User.signup(name, email, password)
 
         // create a token
         const token = createToken(user._id)
