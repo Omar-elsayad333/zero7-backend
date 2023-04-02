@@ -1,21 +1,21 @@
 require('dotenv').config()
 const cors = require('cors')
 const express = require('express')
-const { connectDB } = require('./config/db')
-const requestInfo = require('./middlewares/requestInfo')
+const { connectDB } = require('./src/config/db')
+const requestInfo = require('./src/middlewares/requestInfo')
 // const passport = require('passport');
 // const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 // Import app routes
-const userRoutes = require('./routes/user')
-const roleRoutes = require('./routes/roles')
-const sizeRoutes = require('./routes/sizes')
-const colorRoutes = require('./routes/colors')
-const genderRoutes = require('./routes/genders')
-const seasonRoutes = require('./routes/seasons')
-const productsRoutes = require('./routes/products')
-const categoryRoutes = require('./routes/categorys')
-const dashboardRoutes = require('./routes/dashboard')
+const userRoutes = require('./src/routes/user')
+const roleRoutes = require('./src/routes/roles')
+const sizeRoutes = require('./src/routes/sizes')
+const colorRoutes = require('./src/routes/colors')
+const genderRoutes = require('./src/routes/genders')
+const seasonRoutes = require('./src/routes/seasons')
+const productsRoutes = require('./src/routes/products')
+const categoryRoutes = require('./src/routes/categorys')
+const dashboardRoutes = require('./src/routes/dashboard')
 
 // Express app
 const app = express()
@@ -50,9 +50,6 @@ app.use('/api/products/seasons', seasonRoutes)
 app.use('/api/products/genders', genderRoutes)
 app.use('/api/products/categorys', categoryRoutes)
 app.use('/api/products', productsRoutes)
-// app.use('/', (req, res) => {
-//     res.status(200).json('welcome to team backend')   
-// })
 
 // Google routes
 // app.get('/auth/google', passport.authenticate('google', {

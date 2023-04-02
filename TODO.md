@@ -1,5 +1,3 @@
-* refresh token
+- login with google
 
-* login with google
-
-* login with facebook
+- login with facebook
