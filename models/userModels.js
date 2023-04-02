@@ -4,7 +4,6 @@ const { db } = require('../config/db')
 const validator = require('validator')
 
 const Schema = mongoose.Schema
-
 const userSchema = new Schema({
     name: {
         type: String,
@@ -23,6 +22,14 @@ const userSchema = new Schema({
     password: {
         type: String,
         required: true,
+    },
+    accessToken: {
+        type: String,
+        unique: true
+    },
+    refreshToken: {
+        type: String,
+        unique: true
     },
     role: {
         name: {

@@ -14,7 +14,7 @@ const requiredRoles = (roles) => {
         const { _id } = jwt.verify(token, process.env.SECRET)
 
         if(!_id) {
-           return res.status(401).json({error: 'Request is not authorized'})
+            return res.status(401).json({error: 'Request is not authorized'})
         }
 
         const userRole = await db.model('User').findOne({ _id }).select('role')

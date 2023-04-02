@@ -1,8 +1,14 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const validator = require('validator')
+const { db } = require('../config/db')
 const User = require('../models/userModels')
-const { createToken } = require('../helpers/token')
+const { 
+    createAccesToken, 
+    createRefreshToken, 
+    getTokenExpDate,
+    checkRefreshTokenExp
+} = require('../helpers/token')
 
 // Login a user
 const loginUser = async (req, res) => {
@@ -11,24 +17,25 @@ const loginUser = async (req, res) => {
     try {
         const user = await User.login(email, password)
 
-        // create a token
-        const token = createToken(user._id)
+        // Create new tokens for user
+        user.accessToken = await createAccesToken(user._id)
+        user.refreshToken = await createRefreshToken(user._id)
+        const accessTokenExpireAt = await getTokenExpDate(user.accessToken)
+        const refreshTokenExpireAt = await getTokenExpDate(user.refreshToken)
 
-        // get the user email
-        const userEmail = user.email
+        // Save the new tokens to the user
+        await user.save()
 
-        res.status(200).json({email:userEmail, token})
+        res.status(200).json({
+            email: user.email, 
+            accessToken: user.accessToken, 
+            refreshToken: user.refreshToken,
+            accessTokenExpireAt,
+            refreshTokenExpireAt
+        })
     } catch (error) {
         res.status(400).json({error: error.message})
     }
-
-    // check if user is valid
-    // const username = req.body.username;
-    // const user = { username: username };
-    // const accessToken = generateAccessToken(user);
-    // const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-    // refreshTokens.push(refreshToken);
-    // res.json({ accessToken: accessToken, refreshToken: refreshToken });
 }
 
 // Signup a user
@@ -46,35 +53,97 @@ const signupUser = async (req, res) => {
     try {
         const user = await User.signup(name, phoneNumber, email, password)
 
-        // create a token
-        const token = createToken(user._id)
+        // Create new tokens for user
+        user.accessToken = await createAccesToken(user._id)
+        user.refreshToken = await createRefreshToken(user._id)
+        const accessTokenExpireAt = await getTokenExpDate(user.accessToken)
+        const refreshTokenExpireAt = await getTokenExpDate(user.refreshToken)
 
-        res.status(200).json({email, token})
+        // Save the new tokens to the user
+        await user.save()
+
+        res.status(200).json({
+            email: user.email, 
+            accessToken: user.accessToken, 
+            refreshToken: user.refreshToken,
+            accessTokenExpireAt,
+            refreshTokenExpireAt
+        })
     } catch (error) {
         res.status(400).json({error: error.message})
     }
 }
 
+const userData = async (req, res) => {
+    const { authorization } = req.headers
+
+    if(!authorization) {
+        return res.status(401).json({ message: 'Not authaticted' })
+    }
+
+    const token = authorization.split(' ')[1]
+    
+    const user = await db.model('User').findOne(
+        { accessToken: token },
+        { 
+            _id: 0, 
+            __v: 0,
+            password: 0, 
+            accessToken: 0,
+            refreshToken: 0,
+            role: {
+                roleId: 0
+            }
+        }
+    )
+    if(!user) {
+        return res.status(404).json({ message: 'No such user' })
+    }
+
+    try {
+        return res.status(200).json(user)
+    }
+    catch (error) {
+        return res.status(404).json({ message: error.message })
+    }
+}
+
 // Create new token
 const refreshToken = async (req, res) => {
+    const accessToken = req.body.accessToken;
     const refreshToken = req.body.refreshToken;
 
-    if (!refreshToken) {
+    if(!accessToken) {
+        return res.status(401).json({ message: "Access token is required." })
+    }
+    if(!refreshToken) {
         return res.status(401).json({ message: "Refresh token is required." })
     }
 
-    if (!refreshTokens.includes(refreshToken)) {
-        return res.status(403).json({ message: "Invalid refresh token." })
+    const user = await db.model('User').findOne({ accessToken })
+    if(!user) {
+        return res.status(401).json({ messeage: "There is no such user" })
     }
+    
+    try {
+        await checkRefreshTokenExp(refreshToken)
+        const newAccessToken = await createAccesToken(user._id);
+        const newRefreshToken = await createRefreshToken(user._id);
 
-    const { _id } = jwt.verify(token, process.env.SECRET)
-    if (!err) {
-        return res.status(403).json({ message: "Invalid refresh token." })
+        // update user tokens
+        await db.model('User').findOneAndUpdate({ _id: user._id }, {
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken
+        })
+    
+        res.status(200).json({
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken
+        });
     }
-
-    const accessToken = createToken({ _id });
-
-    res.json({ accessToken: accessToken });
+    catch (error){
+        res.status(401).json({ message: error.message })
+    }
 }
 
 // Get all users
@@ -133,7 +202,7 @@ const resetPassword = async (req, res) => {
 
     const match = await bcrypt.compare(oldPassword, user.password)
     if(!match) {
-        return res.status(400).json('Old password is not correct')
+        return res.status(404).json('Old password is not correct')
     }
 
     const salt = await bcrypt.genSalt(10)
@@ -142,15 +211,16 @@ const resetPassword = async (req, res) => {
     const updatedUser = await User.findOneAndUpdate({ _id: _id }, { password: hashedPassword })
     
     if(!updatedUser) {
-        return res.status(404).json('Old password is not correct')    
+        return res.status(500).json('Some thing went wrong')    
     }
 
     return res.status(200).json(updatedUser)    
 }
 
 module.exports = { 
-    signupUser,
     loginUser,
+    signupUser,
+    userData,
     refreshToken,
     getAllUsers,
     deleteUser,

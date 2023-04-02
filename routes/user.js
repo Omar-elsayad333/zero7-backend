@@ -5,6 +5,7 @@ const requiredRoles = require('../middlewares/requiredRoles')
 const { 
     loginUser, 
     signupUser,
+    userData,
     refreshToken,
     getAllUsers,
     deleteUser,
@@ -19,6 +20,9 @@ router.post('/login', loginUser)
 
 // Signup route
 router.post('/signup', signupUser)
+
+// User data route
+router.get('/userData', requiredRoles(['superAdmin', 'admin', 'manager', 'employee']), userData)
 
 // Refresh token
 router.post('/refreshToken', refreshToken)
