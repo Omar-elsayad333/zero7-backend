@@ -14,7 +14,10 @@ const loginUser = async (req, res) => {
         // create a token
         const token = createToken(user._id)
 
-        res.status(200).json({email, token})
+        // get the user email
+        const userEmail = user.email
+
+        res.status(200).json({email:userEmail, token})
     } catch (error) {
         res.status(400).json({error: error.message})
     }
@@ -30,14 +33,18 @@ const loginUser = async (req, res) => {
 
 // Signup a user
 const signupUser = async (req, res) => {
-    const { name, email, password, confirmPassword } = req.body
+    const { name, phoneNumber, email, password, confirmPassword } = req.body
 
     if(password !== confirmPassword) {
         return res.status(400).json('Passwords do not match')
     }
 
+    if(phoneNumber.slice(0,3) !== '+20') {
+        return res.status(400).json('Phone number not valid')
+    }
+
     try {
-        const user = await User.signup(name, email, password)
+        const user = await User.signup(name, phoneNumber, email, password)
 
         // create a token
         const token = createToken(user._id)
