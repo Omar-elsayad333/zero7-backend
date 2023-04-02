@@ -10,6 +10,11 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
+    phoneNumber: {
+        type: String,
+        required: true,
+        unique: true
+    },
     email: {
         type: String,
         required: true,
@@ -17,7 +22,7 @@ const userSchema = new Schema({
     },
     password: {
         type: String,
-        required: true
+        required: true,
     },
     role: {
         name: {
@@ -32,10 +37,10 @@ const userSchema = new Schema({
 })
 
 // static signup method
-userSchema.statics.signup = async function(name, email, password) {
+userSchema.statics.signup = async function(name, phoneNumber, email, password) {
 
     // validation
-    if (!name || !email || !password) {
+    if (!name || !phoneNumber || !email || !password) {
         throw Error('All fields must be filled')
     }
     if (!validator.isEmail(email)) {
@@ -44,11 +49,19 @@ userSchema.statics.signup = async function(name, email, password) {
     if (!validator.isStrongPassword(password)) {
         throw Error('Password not strong enough')
     }
+    if (!validator.isMobilePhone(phoneNumber, ['ar-EG'])) {
+        throw Error('phone number not valid')
+    }   
 
-    const exists = await this.findOne({ email })
+    const emailExists = await this.findOne({ email })
+    const phoneNumberExists = await this.findOne({ phoneNumber })
 
-    if (exists) {
+    if (emailExists) {
         throw Error('Email already in use')
+    }
+
+    if (phoneNumberExists) {
+        throw Error('Phone number already in use')
     }
 
     const salt = await bcrypt.genSalt(10)
@@ -63,6 +76,7 @@ userSchema.statics.signup = async function(name, email, password) {
     const user = await this.create(
         {
             name,
+            phoneNumber,
             email,
             password: hash,
             role: {
@@ -82,9 +96,14 @@ userSchema.statics.login = async function(email, password) {
         throw Error('All fields must be filled')
     }
 
-    const user = await this.findOne({ email })
+    let user = await this.findOne({ email })
     if(!user) {
-        throw Error('Incorrect email')
+        const userWithPhone = await this.findOne({ phoneNumber: email })
+        if(!userWithPhone) {
+            throw Error('Incorrect email or phone number')
+        }else {
+            user = userWithPhone
+        }
     }
 
     const match = await bcrypt.compare(password, user.password)
