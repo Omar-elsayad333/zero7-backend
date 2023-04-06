@@ -129,16 +129,22 @@ const refreshToken = async (req, res) => {
         await checkRefreshTokenExp(refreshToken)
         const newAccessToken = await createAccesToken(user._id);
         const newRefreshToken = await createRefreshToken(user._id);
+        const accessTokenExpireAt = await getTokenExpDate(user.accessToken)
+        const refreshTokenExpireAt = await getTokenExpDate(user.refreshToken)
 
         // update user tokens
         await db.model('User').findOneAndUpdate({ _id: user._id }, {
             accessToken: newAccessToken,
-            refreshToken: newRefreshToken
+            refreshToken: newRefreshToken,
+            accessTokenExpireAt,
+            refreshTokenExpireAt
         })
     
         res.status(200).json({
             accessToken: newAccessToken,
-            refreshToken: newRefreshToken
+            refreshToken: newRefreshToken,
+            accessTokenExpireAt,
+            refreshTokenExpireAt
         });
     }
     catch (error){
