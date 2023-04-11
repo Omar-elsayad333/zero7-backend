@@ -17,25 +17,29 @@ const productSchema = new Schema({
     },
     categoryId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'categories',
+        ref: 'Category',
         required: true
     },
     seasonId: {
         type: mongoose.Schema.Types.ObjectId,
+        ref: 'Season',
         required: true
     },
     genderId: {
         type: mongoose.Schema.Types.ObjectId,
+        ref: 'Gender',
         required: true
     },
     colors: [{
         colorId: {
             type: mongoose.Schema.Types.ObjectId,
-            required: true
+            required: true,
+            ref: 'Color'
         },
         sizes: [{
             sizeId: {
                 type: mongoose.Schema.Types.ObjectId,
+                ref: 'Size',
                 required: true
             },
             quantity: {
@@ -56,7 +60,7 @@ const productSchema = new Schema({
     ratings: [{
         userId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'user',
+            ref: 'User',
             required: true
         },
         value: {

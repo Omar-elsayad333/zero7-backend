@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const { db } = require('../config/db')
 const Product = require('../models/productModels')
+const Color = require('../models/colorModels')
 
 // get all products
 const getProducts = async (req, res) => {
@@ -16,12 +17,15 @@ const getProduct = async (req, res) => {
         return res.status(404).json({error: 'No such product'})
     }
 
-    const product = await Product.findById(id)
+    const product = await db.model('Product').findById(id).populate({
+        path: 'colors.colorId',
+        select: 'name hexColor'
+    })
 
     if (!product) {
         return res.status(404).json({error: 'No such product'})
     }
-    
+
     res.status(200).json(product)
 }
 
