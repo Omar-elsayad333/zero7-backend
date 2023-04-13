@@ -38,8 +38,8 @@ const productSchema = new Schema({
         },
         sizes: [{
             sizeId: {
-                type: mongoose.Schema.Types.ObjectId,
                 ref: 'Size',
+                type: mongoose.Schema.Types.ObjectId,
                 required: true
             },
             quantity: {
