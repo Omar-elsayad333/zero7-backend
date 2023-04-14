@@ -118,18 +118,18 @@ const updateProduct = async (req, res) => {
     const { id } = req.params
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(404).json({error: 'No such workout'})
+        return res.status(404).json({error: 'No such product'})
     }
 
-    const workout = await Product.findOneAndUpdate({_id: id}, {
+    const product = await Product.findOneAndUpdate({_id: id}, {
         ...req.body
     })
 
-    if (!workout) {
-        return res.status(400).json({error: 'No such workout'})
+    if (!product) {
+        return res.status(400).json({error: 'No such product'})
     }
 
-    res.status(200).json(workout)
+    res.status(200).json(product)
 }
 
 module.exports = {
