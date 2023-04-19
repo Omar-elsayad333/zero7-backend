@@ -42,16 +42,18 @@ const loginUser = async (req, res) => {
 const signupUser = async (req, res) => {
     const { name, phoneNumber, email, password, confirmPassword } = req.body
 
+    const encodedPhoneNumber = phoneNumber.replace('%2B', '+');
+    
     if(password !== confirmPassword) {
         return res.status(400).json('Passwords do not match')
     }
 
-    if(phoneNumber.slice(0,3) !== '+20') {
+    if(encodedPhoneNumber.slice(0,3) !== '+20') {
         return res.status(400).json('Phone number not valid')
     }
 
     try {
-        const user = await User.signup(name, phoneNumber, email, password)
+        const user = await User.signup(name, encodedPhoneNumber, email, password)
 
         // Create new tokens for user
         user.accessToken = await createAccesToken(user._id)
