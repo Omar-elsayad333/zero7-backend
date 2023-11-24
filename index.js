@@ -1,24 +1,25 @@
-require("dotenv").config();
-const cors = require("cors");
-const express = require("express");
-const { connectDB } = require("./src/config/db");
-const requestInfo = require("./src/middlewares/requestInfo");
+require('dotenv').config()
+const cors = require('cors')
+const morgan = require('morgan')
+const express = require('express')
+const { connectDB } = require('./src/config/db')
+const requestInfo = require('./src/middlewares/requestInfo')
 // const passport = require('passport');
 // const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 // Import app routes
-const userRoutes = require("./src/routes/user");
-const roleRoutes = require("./src/routes/roles");
-const sizeRoutes = require("./src/routes/sizes");
-const colorRoutes = require("./src/routes/colors");
-const genderRoutes = require("./src/routes/genders");
-const seasonRoutes = require("./src/routes/seasons");
-const productsRoutes = require("./src/routes/products");
-const categoryRoutes = require("./src/routes/categorys");
-const dashboardRoutes = require("./src/routes/dashboard");
+const userRoutes = require('./src/routes/user')
+const roleRoutes = require('./src/routes/roles')
+const sizeRoutes = require('./src/routes/sizes')
+const colorRoutes = require('./src/routes/colors')
+const genderRoutes = require('./src/routes/genders')
+const seasonRoutes = require('./src/routes/seasons')
+const productsRoutes = require('./src/routes/products')
+const categoryRoutes = require('./src/routes/categorys')
+const dashboardRoutes = require('./src/routes/dashboard')
 
 // Express app
-const app = express();
+const app = express()
 
 // passport.use(new GoogleStrategy({
 //     clientID: process.env.GOOGLE_CLIENT_ID,
@@ -31,25 +32,25 @@ const app = express();
 // }));
 
 // Middlewares
-app.use(cors());
-app.use(express.json());
-app.use((req, res, next) => requestInfo(req, res, next));
+app.use(cors())
+app.use(morgan('dev'))
+app.use(express.json())
 // app.use(passport.initialize());
 
 // User routes
-app.use("/api/user/roles", roleRoutes);
-app.use("/api/user", userRoutes);
+app.use('/api/user/roles', roleRoutes)
+app.use('/api/user', userRoutes)
 
 // Dashboard routes
-app.use("/api/dashboard", dashboardRoutes);
+app.use('/api/dashboard', dashboardRoutes)
 
 // Product routes
-app.use("/api/products/sizes", sizeRoutes);
-app.use("/api/products/colors", colorRoutes);
-app.use("/api/products/seasons", seasonRoutes);
-app.use("/api/products/genders", genderRoutes);
-app.use("/api/products/categorys", categoryRoutes);
-app.use("/api/products", productsRoutes);
+app.use('/api/products/sizes', sizeRoutes)
+app.use('/api/products/colors', colorRoutes)
+app.use('/api/products/seasons', seasonRoutes)
+app.use('/api/products/genders', genderRoutes)
+app.use('/api/products/categorys', categoryRoutes)
+app.use('/api/products', productsRoutes)
 
 // Google routes
 // app.get('/auth/google', passport.authenticate('google', {
@@ -61,6 +62,6 @@ app.use("/api/products", productsRoutes);
 // }));
 
 // Connect to data base
-connectDB(app);
+connectDB(app)
 
-module.exports = app;
+module.exports = app

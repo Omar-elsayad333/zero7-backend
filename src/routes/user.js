@@ -22,17 +22,13 @@ router.post('/login', loginUser)
 router.post('/signup', signupUser)
 
 // User data route
-router.get('/userData', requiredRoles(['superAdmin', 'admin', 'manager', 'employee']), userData)
+router.get('/userData', userData)
 
 // Refresh token
 router.post('/refreshToken', refreshToken)
 
 // Reset password route
-router.patch(
-  '/resetPassword',
-  requiredRoles(['superAdmin', 'admin', 'manager', 'employee']),
-  resetPassword,
-)
+router.patch('/resetPassword', resetPassword)
 
 // Get all users
 router.get('/', requiredRoles(['superAdmin']), getAllUsers)
