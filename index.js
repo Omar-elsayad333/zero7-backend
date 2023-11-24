@@ -3,7 +3,6 @@ const cors = require('cors')
 const morgan = require('morgan')
 const express = require('express')
 const { connectDB } = require('./src/config/db')
-const requestInfo = require('./src/middlewares/requestInfo')
 // const passport = require('passport');
 // const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
