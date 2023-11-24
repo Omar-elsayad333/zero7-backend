@@ -3,6 +3,7 @@ const requiredRoles = require('../middlewares/requiredRoles')
 
 // Controllers
 const {
+  OAuthUser,
   loginUser,
   signupUser,
   userData,
@@ -14,6 +15,9 @@ const {
 
 // Initi express router
 const router = express.Router()
+
+// OAuth route
+router.post('/OAuth', OAuthUser)
 
 // Login route
 router.post('/login', loginUser)

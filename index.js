@@ -37,19 +37,19 @@ app.use(express.json())
 // app.use(passport.initialize());
 
 // User routes
-app.use('/api/user/roles', roleRoutes)
-app.use('/api/user', userRoutes)
+app.use(`${process.env.BASE_API_V}/roles`, roleRoutes)
+app.use(`${process.env.BASE_API_V}/user`, userRoutes)
 
 // Dashboard routes
-app.use('/api/dashboard', dashboardRoutes)
+app.use(`${process.env.BASE_API_V}/dashboard`, dashboardRoutes)
 
-// Product routes
-app.use('/api/products/sizes', sizeRoutes)
-app.use('/api/products/colors', colorRoutes)
-app.use('/api/products/seasons', seasonRoutes)
-app.use('/api/products/genders', genderRoutes)
-app.use('/api/products/categorys', categoryRoutes)
-app.use('/api/products', productsRoutes)
+// Website routes
+app.use(`${process.env.BASE_API_V}/products/sizes`, sizeRoutes)
+app.use(`${process.env.BASE_API_V}/products/colors`, colorRoutes)
+app.use(`${process.env.BASE_API_V}/products/seasons`, seasonRoutes)
+app.use(`${process.env.BASE_API_V}/products/genders`, genderRoutes)
+app.use(`${process.env.BASE_API_V}/products/categorys`, categoryRoutes)
+app.use(`${process.env.BASE_API_V}/products`, productsRoutes)
 
 // Google routes
 // app.get('/auth/google', passport.authenticate('google', {

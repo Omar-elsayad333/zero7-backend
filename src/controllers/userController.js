@@ -10,6 +10,34 @@ const {
   checkRefreshTokenExp,
 } = require('../helpers/token')
 
+// OAuth a user
+const OAuthUser = async (req, res) => {
+  const { email, token, phoneNumber } = req.body
+
+  try {
+    const user = await User.login(email, password)
+
+    // Create new tokens for user
+    user.accessToken = await createAccesToken(user._id)
+    user.refreshToken = await createRefreshToken(user._id)
+    const accessTokenExpireAt = await getTokenExpDate(user.accessToken)
+    const refreshTokenExpireAt = await getTokenExpDate(user.refreshToken)
+
+    // Save the new tokens to the user
+    await user.save()
+
+    res.status(200).json({
+      email: user.email,
+      accessToken: user.accessToken,
+      refreshToken: user.refreshToken,
+      accessTokenExpireAt,
+      refreshTokenExpireAt,
+    })
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+}
+
 // Login a user
 const loginUser = async (req, res) => {
   const { email, password } = req.body
@@ -228,6 +256,7 @@ const resetPassword = async (req, res) => {
 }
 
 module.exports = {
+  OAuthUser,
   loginUser,
   signupUser,
   userData,
