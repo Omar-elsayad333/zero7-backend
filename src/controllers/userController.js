@@ -12,7 +12,7 @@ const {
 
 // OAuth a user
 const OAuthUser = async (req, res) => {
-  const { email, token, phoneNumber } = req.body
+  const { email, token, userImage, firstName, lastName } = req.body
 
   try {
     const user = await User.login(email, password)
@@ -109,7 +109,7 @@ const userData = async (req, res) => {
   const { authorization } = req.headers
 
   if (!authorization) {
-    return res.status(401).json({ message: 'Not authaticted' })
+    return res.status(401).json({ message: 'Not authanticted' })
   }
 
   const token = authorization.split(' ')[1]
@@ -136,6 +136,24 @@ const userData = async (req, res) => {
   } catch (error) {
     return res.status(404).json({ message: error.message })
   }
+}
+
+// Get user data
+const updateUser = async (req, res) => {
+  const { authorization } = req.headers
+
+  if (!authorization) {
+    return res.status(401).json({ message: 'Not authanticted' })
+  }
+
+  const token = authorization.split(' ')[1]
+  const user = await db.model('User').findOneAndUpdate({ accessToken: token }, { ...req.body })
+
+  if (!user) {
+    return res.status(404).json({ message: 'No such user' })
+  }
+
+  return res.status(200).json(user)
 }
 
 // Create new token
@@ -260,6 +278,7 @@ module.exports = {
   loginUser,
   signupUser,
   userData,
+  updateUser,
   refreshToken,
   getAllUsers,
   deleteUser,

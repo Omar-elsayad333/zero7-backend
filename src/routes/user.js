@@ -7,6 +7,7 @@ const {
   loginUser,
   signupUser,
   userData,
+  updateUser,
   refreshToken,
   getAllUsers,
   deleteUser,
@@ -27,6 +28,9 @@ router.post('/signup', signupUser)
 
 // User data route
 router.get('/userData', userData)
+
+// User data route
+router.patch('/updateUser', updateUser)
 
 // Refresh token
 router.post('/refreshToken', refreshToken)
