@@ -12,10 +12,13 @@ const {
   getAllUsers,
   deleteUser,
   resetPassword,
+  testImage,
 } = require('../controllers/userController')
 
 // Initi express router
 const router = express.Router()
+
+router.post('/image', testImage)
 
 // OAuth route
 router.post('/OAuth', OAuthUser)

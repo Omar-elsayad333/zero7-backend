@@ -273,6 +273,11 @@ const resetPassword = async (req, res) => {
   return res.status(200).json(updatedUser)
 }
 
+const testImage = (req, res) => {
+  console.log(req.file, req.body)
+  return res.status(200).json('good')
+}
+
 module.exports = {
   OAuthUser,
   loginUser,
@@ -283,4 +288,5 @@ module.exports = {
   getAllUsers,
   deleteUser,
   resetPassword,
+  testImage,
 }
