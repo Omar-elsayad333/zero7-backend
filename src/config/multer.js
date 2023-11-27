@@ -3,7 +3,7 @@ const multer = require('multer')
 // Storing files on disk storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, './src/public/images')
+    cb(null, 'src/public/images')
   },
   filename: function (req, file, cb) {
     const fileExt = file.mimetype.split('/')[1]
