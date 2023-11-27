@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken')
 const validator = require('validator')
 const { db } = require('../config/db')
 const User = require('../models/userModels')
+const usersServices = require('../services/usersServices')
 const {
   createAccesToken,
   createRefreshToken,
@@ -143,17 +144,24 @@ const updateUser = async (req, res) => {
   const { authorization } = req.headers
 
   if (!authorization) {
-    return res.status(401).json({ message: 'Not authanticted' })
+    return res.status(401).json({ status: 401, message: 'User Not Authorized' })
   }
 
   const token = authorization.split(' ')[1]
-  const user = await db.model('User').findOneAndUpdate({ accessToken: token }, { ...req.body })
 
-  if (!user) {
-    return res.status(404).json({ message: 'No such user' })
+  let user
+
+  try {
+    if (req.file?.length > 0) {
+      user = await usersServices.updateUser(token, req.body, req.file)
+    } else {
+      user = await usersServices.updateUser(token, req.body, req.file)
+    }
+
+    return res.status(200).json({ status: 200, data: user, messeage: 'User Updated Successfully' })
+  } catch (error) {
+    return res.status(404).json({ message: error })
   }
-
-  return res.status(200).json(user)
 }
 
 // Create new token
@@ -273,11 +281,6 @@ const resetPassword = async (req, res) => {
   return res.status(200).json(updatedUser)
 }
 
-const testImage = (req, res) => {
-  console.log(req.file, req.body)
-  return res.status(200).json('good')
-}
-
 module.exports = {
   OAuthUser,
   loginUser,
@@ -288,5 +291,4 @@ module.exports = {
   getAllUsers,
   deleteUser,
   resetPassword,
-  testImage,
 }
