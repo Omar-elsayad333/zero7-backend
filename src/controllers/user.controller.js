@@ -3,12 +3,41 @@ const jwt = require('jsonwebtoken')
 const validator = require('validator')
 const { db } = require('../config/db')
 const User = require('../models/userModels')
+const usersServices = require('../services/usersServices')
 const {
   createAccesToken,
   createRefreshToken,
   getTokenExpDate,
   checkRefreshTokenExp,
 } = require('../helpers/token')
+
+// OAuth a user
+const OAuthUser = async (req, res) => {
+  const { email, token, userImage, firstName, lastName } = req.body
+
+  try {
+    const user = await User.login(email, password)
+
+    // Create new tokens for user
+    user.accessToken = await createAccesToken(user._id)
+    user.refreshToken = await createRefreshToken(user._id)
+    const accessTokenExpireAt = await getTokenExpDate(user.accessToken)
+    const refreshTokenExpireAt = await getTokenExpDate(user.refreshToken)
+
+    // Save the new tokens to the user
+    await user.save()
+
+    res.status(200).json({
+      email: user.email,
+      accessToken: user.accessToken,
+      refreshToken: user.refreshToken,
+      accessTokenExpireAt,
+      refreshTokenExpireAt,
+    })
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+}
 
 // Login a user
 const loginUser = async (req, res) => {
@@ -81,7 +110,7 @@ const userData = async (req, res) => {
   const { authorization } = req.headers
 
   if (!authorization) {
-    return res.status(401).json({ message: 'Not authaticted' })
+    return res.status(401).json({ message: 'Not authanticted' })
   }
 
   const token = authorization.split(' ')[1]
@@ -107,6 +136,31 @@ const userData = async (req, res) => {
     return res.status(200).json(user)
   } catch (error) {
     return res.status(404).json({ message: error.message })
+  }
+}
+
+// Get user data
+const updateUser = async (req, res) => {
+  const { authorization } = req.headers
+
+  if (!authorization) {
+    return res.status(401).json({ status: 401, message: 'User Not Authorized' })
+  }
+
+  const token = authorization.split(' ')[1]
+
+  let user
+
+  try {
+    if (req.file?.length > 0) {
+      user = await usersServices.updateUser(token, req.body, req.file)
+    } else {
+      user = await usersServices.updateUser(token, req.body, req.file)
+    }
+
+    return res.status(200).json({ status: 200, data: user, messeage: 'User Updated Successfully' })
+  } catch (error) {
+    return res.status(404).json({ message: error })
   }
 }
 
@@ -228,9 +282,11 @@ const resetPassword = async (req, res) => {
 }
 
 module.exports = {
+  OAuthUser,
   loginUser,
   signupUser,
   userData,
+  updateUser,
   refreshToken,
   getAllUsers,
   deleteUser,
