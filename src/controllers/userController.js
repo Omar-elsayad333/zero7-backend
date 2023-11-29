@@ -11,78 +11,30 @@ const {
   checkRefreshTokenExp,
 } = require('../helpers/token')
 
-// OAuth a user
-const OAuthUser = async (req, res) => {
-  const { email, token, userImage, firstName, lastName } = req.body
-
-  try {
-    const user = await User.login(email, password)
-
-    // Create new tokens for user
-    user.accessToken = await createAccesToken(user._id)
-    user.refreshToken = await createRefreshToken(user._id)
-    const accessTokenExpireAt = await getTokenExpDate(user.accessToken)
-    const refreshTokenExpireAt = await getTokenExpDate(user.refreshToken)
-
-    // Save the new tokens to the user
-    await user.save()
-
-    res.status(200).json({
-      email: user.email,
-      accessToken: user.accessToken,
-      refreshToken: user.refreshToken,
-      accessTokenExpireAt,
-      refreshTokenExpireAt,
-    })
-  } catch (error) {
-    res.status(400).json({ error: error.message })
-  }
-}
-
 // Login a user
 const loginUser = async (req, res) => {
-  const { email, password } = req.body
-
   try {
-    const user = await User.login(email, password)
-
-    // Create new tokens for user
-    user.accessToken = await createAccesToken(user._id)
-    user.refreshToken = await createRefreshToken(user._id)
-    const accessTokenExpireAt = await getTokenExpDate(user.accessToken)
-    const refreshTokenExpireAt = await getTokenExpDate(user.refreshToken)
-
-    // Save the new tokens to the user
-    await user.save()
-
-    res.status(200).json({
-      email: user.email,
-      accessToken: user.accessToken,
-      refreshToken: user.refreshToken,
-      accessTokenExpireAt,
-      refreshTokenExpireAt,
-    })
+    const user = await usersServices.loginUser(req.body)
+    res.status(200).json({ status: 200, message: 'Login successfully', data: user })
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ status: 400, message: error.message })
   }
 }
 
 // Signup a user
 const signupUser = async (req, res) => {
-  const { name, phoneNumber, email, password, confirmPassword } = req.body
-
-  const encodedPhoneNumber = phoneNumber.replace('%2B', '+')
-
-  if (password !== confirmPassword) {
-    return res.status(400).json('Passwords do not match')
-  }
-
-  if (encodedPhoneNumber.slice(0, 3) !== '+20') {
-    return res.status(400).json('Phone number not valid')
-  }
-
   try {
-    const user = await User.signup(name, encodedPhoneNumber, email, password)
+    const user = await usersServices.signupUser(req.body)
+    res.status(200).json({ status: 200, message: 'Sign up user successfully', data: user })
+  } catch (error) {
+    res.status(400).json({ status: 400, message: error.message })
+  }
+}
+
+// OAuth a user
+const socialRegister = async (req, res) => {
+  try {
+    const user = await usersServices.OAuthUser(req.body)
 
     // Create new tokens for user
     user.accessToken = await createAccesToken(user._id)
@@ -139,28 +91,14 @@ const userData = async (req, res) => {
   }
 }
 
-// Get user data
+// Update user data
 const updateUser = async (req, res) => {
-  const { authorization } = req.headers
-
-  if (!authorization) {
-    return res.status(401).json({ status: 401, message: 'User Not Authorized' })
-  }
-
-  const token = authorization.split(' ')[1]
-
-  let user
-
   try {
-    if (req.file?.length > 0) {
-      user = await usersServices.updateUser(token, req.body, req.file)
-    } else {
-      user = await usersServices.updateUser(token, req.body, req.file)
-    }
-
-    return res.status(200).json({ status: 200, data: user, messeage: 'User Updated Successfully' })
+    console.log(req.body)
+    const user = await usersServices.updateUser(req.token, req.body, req.file)
+    res.status(200).json({ status: 200, messeage: 'User Updated Successfully', data: user })
   } catch (error) {
-    return res.status(404).json({ message: error })
+    res.status(400).json({ status: 400, message: error })
   }
 }
 
@@ -282,7 +220,7 @@ const resetPassword = async (req, res) => {
 }
 
 module.exports = {
-  OAuthUser,
+  socialRegister,
   loginUser,
   signupUser,
   userData,

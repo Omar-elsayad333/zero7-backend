@@ -1,10 +1,11 @@
 const express = require('express')
-const { upload } = require('../config/multer')
+// const { upload } = require('../config/multer')
 const requiredRoles = require('../middlewares/requiredRoles')
+const authMiddleware = require('../middlewares/authMiddleware')
 
 // Controllers
 const {
-  OAuthUser,
+  socialRegister,
   loginUser,
   signupUser,
   userData,
@@ -13,13 +14,13 @@ const {
   getAllUsers,
   deleteUser,
   resetPassword,
-} = require('../controllers/user.controller')
+} = require('../controllers/userController')
 
 // Initi express router
 const router = express.Router()
 
 // OAuth route
-router.post('/OAuth', OAuthUser)
+router.post('/socialRegester', socialRegister)
 
 // Login route
 router.post('/login', loginUser)
@@ -28,13 +29,13 @@ router.post('/login', loginUser)
 router.post('/signup', signupUser)
 
 // User data route
-router.get('/userData', userData)
+router.get('/userData', authMiddleware, userData)
 
 // User data route
-router.patch('/updateUser', upload.single('profileImage'), updateUser)
+router.patch('/updateUser', authMiddleware, updateUser)
 
 // Refresh token
-router.post('/refreshToken', refreshToken)
+router.post('/refreshToken', authMiddleware, refreshToken)
 
 // Reset password route
 router.patch('/resetPassword', resetPassword)
