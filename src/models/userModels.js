@@ -5,16 +5,16 @@ const validator = require('validator')
 
 const Schema = mongoose.Schema
 const userSchema = new Schema({
-  name: {
+  firstName: {
     type: String,
     required: true,
   },
-  profileImage: {
+  lastName: {
     type: String,
+    required: true,
   },
   phoneNumber: {
     type: String,
-    required: true,
     unique: true,
   },
   email: {
@@ -34,6 +34,10 @@ const userSchema = new Schema({
     type: String,
     unique: true,
   },
+  socialToken: {
+    type: String,
+    unique: true,
+  },
   role: {
     name: {
       type: String,
@@ -47,9 +51,16 @@ const userSchema = new Schema({
 })
 
 // static signup method
-userSchema.statics.signup = async function (name, phoneNumber, email, password) {
+userSchema.statics.signup = async function (
+  firstName,
+  lastName,
+  email,
+  password,
+  phoneNumber,
+  socialToken,
+) {
   // validation
-  if (!name || !phoneNumber || !email || !password) {
+  if (!firstName || !lastName || !email || !password) {
     throw Error('All fields must be filled')
   }
   if (!validator.isEmail(email)) {
@@ -58,8 +69,10 @@ userSchema.statics.signup = async function (name, phoneNumber, email, password) 
   if (!validator.isStrongPassword(password)) {
     throw Error('Password not strong enough')
   }
-  if (!validator.isMobilePhone(phoneNumber, ['ar-EG'])) {
-    throw Error('Phone number not valid')
+  if (phoneNumber) {
+    if (!validator.isMobilePhone(phoneNumber, ['ar-EG'])) {
+      throw Error('Phone number not valid')
+    }
   }
 
   const emailExists = await this.findOne({ email })
@@ -69,8 +82,10 @@ userSchema.statics.signup = async function (name, phoneNumber, email, password) 
     throw Error('Email already in use')
   }
 
-  if (phoneNumberExists) {
-    throw Error('Phone number already in use')
+  if (phoneNumber) {
+    if (phoneNumberExists) {
+      throw Error('Phone number already in use')
+    }
   }
 
   const salt = await bcrypt.genSalt(10)
@@ -82,16 +97,21 @@ userSchema.statics.signup = async function (name, phoneNumber, email, password) 
     throw Error('someThing went wrong')
   }
 
-  const user = await this.create({
-    name,
-    phoneNumber,
+  const userData = {
+    firstName,
+    lastName,
     email,
     password: hash,
     role: {
       name: 'admin',
       roleId: roleId,
     },
-  })
+  }
+
+  if (phoneNumber) userData.phoneNumber = phoneNumber
+  if (socialToken) userData.socialToken = socialToken
+
+  const user = await this.create({ userData })
 
   return user
 }
@@ -115,6 +135,21 @@ userSchema.statics.login = async function (email, password) {
   const match = await bcrypt.compare(password, user.password)
   if (!match) {
     throw Error('Incorrect password')
+  }
+
+  return user
+}
+
+// static social login method
+userSchema.statics.socialLogin = async function (email, socialToken) {
+  let user = await this.findOne({ email })
+
+  if (!user) {
+    throw Error('Failed to register user')
+  }
+
+  if (user.socialToken !== socialToken) {
+    throw Error('Failed to register user')
   }
 
   return user
