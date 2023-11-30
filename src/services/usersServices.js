@@ -77,10 +77,10 @@ const socialRegister = async (body) => {
     const isUser = await db.model('User').findOne({ email: body.email })
 
     if (isUser && isUser.socialToken) {
-      const user = await socialLogin(body.email, body.socialToken)
+      const user = await db.model('User').socialLogin(body.email, body.socialToken)
       return user
     } else {
-      const user = await signup(body)
+      const user = await db.model('User').signup(body)
       return user
     }
   } catch (error) {

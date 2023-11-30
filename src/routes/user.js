@@ -20,7 +20,7 @@ const {
 const router = express.Router()
 
 // OAuth route
-router.post('/socialRegester', socialRegister)
+router.post('/socialRegister', socialRegister)
 
 // Login route
 router.post('/login', loginUser)
