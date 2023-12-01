@@ -1,5 +1,5 @@
 const express = require('express')
-// const { upload } = require('../config/multer')
+const { memoryUpload } = require('../config/multer')
 const requiredRoles = require('../middlewares/requiredRoles')
 const authMiddleware = require('../middlewares/authMiddleware')
 
@@ -32,7 +32,7 @@ router.post('/signup', signupUser)
 router.get('/userData', authMiddleware, userData)
 
 // User data route
-router.patch('/updateUser', authMiddleware, updateUser)
+router.patch('/updateUser', authMiddleware, memoryUpload('/avatar'), updateUser)
 
 // Refresh token
 router.post('/refreshToken', authMiddleware, refreshToken)
