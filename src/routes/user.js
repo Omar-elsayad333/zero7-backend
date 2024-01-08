@@ -32,7 +32,8 @@ router.post('/signup', signupUser)
 router.get('/userData', authMiddleware, userData)
 
 // User data route
-router.patch('/updateUser', authMiddleware, memoryUpload('/avatar'), updateUser)
+// router.patch('/updateUser', authMiddleware, memoryUpload('/avatar'), updateUser)
+router.patch('/updateUser', authMiddleware, updateUser)
 
 // Refresh token
 router.post('/refreshToken', authMiddleware, refreshToken)
