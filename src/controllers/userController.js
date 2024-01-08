@@ -34,7 +34,7 @@ const signupUser = async (req, res) => {
 // OAuth a user
 const socialRegister = async (req, res) => {
   try {
-    const user = await usersServices.OAuthUser(req.body)
+    const user = await usersServices.socialRegister(req.body)
 
     // Create new tokens for user
     user.accessToken = await createAccesToken(user._id)

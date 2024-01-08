@@ -60,13 +60,16 @@ userSchema.statics.signup = async function (
   socialToken,
 ) {
   // validation
-  if (!firstName || !lastName || !email || !password) {
+  if (!firstName || !lastName || !email) {
+    throw Error('All fields must be filled')
+  }
+  if (!socialToken && !password) {
     throw Error('All fields must be filled')
   }
   if (!validator.isEmail(email)) {
     throw Error('Email not valid')
   }
-  if (!validator.isStrongPassword(password)) {
+  if (password && !validator.isStrongPassword(password)) {
     throw Error('Password not strong enough')
   }
   if (phoneNumber) {
@@ -88,8 +91,11 @@ userSchema.statics.signup = async function (
     }
   }
 
-  const salt = await bcrypt.genSalt(10)
-  const hash = await bcrypt.hash(password, salt)
+  let hash
+  if (password) {
+    const salt = await bcrypt.genSalt(10)
+    hash = await bcrypt.hash(password, salt)
+  }
 
   const roleId = await db.model('Role').findOne({ name: 'admin' })
 
@@ -101,13 +107,13 @@ userSchema.statics.signup = async function (
     firstName,
     lastName,
     email,
-    password: hash,
     role: {
       name: 'admin',
       roleId: roleId,
     },
   }
 
+  if (!socialToken) userData.password = hash
   if (phoneNumber) userData.phoneNumber = phoneNumber
   if (socialToken) userData.socialToken = socialToken
 

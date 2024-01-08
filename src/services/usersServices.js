@@ -75,16 +75,18 @@ const socialRegister = async (body) => {
     if (!body.email || !body.socialToken) throw new Error('Failed to register user')
 
     const isUser = await db.model('User').findOne({ email: body.email })
-
+    console.log(isUser)
     if (isUser && isUser.socialToken) {
-      const user = await socialLogin(body.email, body.socialToken)
+      const user = await db.model('User').socialLogin(body.email, body.socialToken)
       return user
     } else {
-      const user = await signup(body)
+      const user = await db
+        .model('User')
+        .signup(body.firstName, body.lastName, body.email, null, null, body.socialToken)
       return user
     }
   } catch (error) {
-    throw new Error('Faild to register user')
+    throw new Error(error.message)
   }
 }
 
