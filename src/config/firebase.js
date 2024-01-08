@@ -3,7 +3,7 @@ const serviceAccount = require('./zero7-406120-firebase-adminsdk-atmoz-79c9bba6a
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  storageBucket: 'zero7-406120.appspot.com', // Replace with your bucket name
+  storageBucket: 'zero7-406120.appspot.com',
 })
 
 const bucket = admin.storage().bucket()
