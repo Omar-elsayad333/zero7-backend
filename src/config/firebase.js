@@ -1,9 +1,9 @@
 const admin = require('firebase-admin')
-const serviceAccount = require('path/to/your/serviceAccountKey.json') // Download from Firebase Console
+const serviceAccount = require('./zero7-406120-firebase-adminsdk-atmoz-79c9bba6a5.json') // Download from Firebase Console
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  storageBucket: 'your-project-id.appspot.com', // Replace with your bucket name
+  storageBucket: 'zero7-406120.appspot.com', // Replace with your bucket name
 })
 
 const bucket = admin.storage().bucket()
