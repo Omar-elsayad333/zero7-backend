@@ -9,5 +9,6 @@ admin.initializeApp({
 const bucket = admin.storage().bucket()
 
 module.exports = {
+  admin,
   bucket,
 }

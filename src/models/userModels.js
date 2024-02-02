@@ -13,9 +13,15 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
+  media: {
+    type: Array,
+  },
   phoneNumber: {
     type: String,
     unique: true,
+  },
+  country: {
+    type: String,
   },
   email: {
     type: String,
@@ -38,30 +44,32 @@ const userSchema = new Schema({
     type: String,
     unique: true,
   },
+  isBlocked: {
+    type: Boolean,
+    default: false,
+  },
   role: {
     name: {
       type: String,
-      required: true,
+      // required: true,
     },
     roleId: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
+      // required: true,
     },
   },
 })
 
 // static signup method
-userSchema.statics.signup = async function (
-  firstName,
-  lastName,
-  email,
-  password,
-  phoneNumber,
-  socialToken,
-) {
-  // validation
+userSchema.statics.signup = async function (body) {
+  const { firstName, lastName, phoneNumber, email, password, confirmPassword, socialToken } = body
+
   if (!firstName || !lastName || !email) {
     throw Error('All fields must be filled')
+  }
+
+  if (password !== confirmPassword) {
+    throw new Error('Passwords do not match')
   }
   if (!socialToken && !password) {
     throw Error('All fields must be filled')
@@ -72,19 +80,19 @@ userSchema.statics.signup = async function (
   if (password && !validator.isStrongPassword(password)) {
     throw Error('Password not strong enough')
   }
-  if (phoneNumber) {
-    if (!validator.isMobilePhone(phoneNumber, ['ar-EG'])) {
+  const encodedPhoneNumber = phoneNumber?.replace('%2B', '+')
+  if (encodedPhoneNumber) {
+    if (!validator.isMobilePhone(encodedPhoneNumber, ['ar-EG'])) {
       throw Error('Phone number not valid')
     }
   }
 
   const emailExists = await this.findOne({ email })
-  const phoneNumberExists = await this.findOne({ phoneNumber })
-
   if (emailExists) {
     throw Error('Email already in use')
   }
 
+  const phoneNumberExists = await this.findOne({ phoneNumber })
   if (phoneNumber) {
     if (phoneNumberExists) {
       throw Error('Phone number already in use')
@@ -116,8 +124,8 @@ userSchema.statics.signup = async function (
   if (!socialToken) userData.password = hash
   if (phoneNumber) userData.phoneNumber = phoneNumber
   if (socialToken) userData.socialToken = socialToken
-
-  const user = await this.create({ userData })
+  console.log(userData)
+  const user = await this.create({ ...userData })
 
   return user
 }

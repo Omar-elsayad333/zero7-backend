@@ -1,5 +1,6 @@
 const express = require('express')
 const { memoryUpload } = require('../config/multer')
+const userMiddleware = require('../middlewares/userMiddleware')
 const requiredRoles = require('../middlewares/requiredRoles')
 const authMiddleware = require('../middlewares/authMiddleware')
 
@@ -31,20 +32,25 @@ router.post('/signup', signupUser)
 // User data route
 router.get('/userData', authMiddleware, userData)
 
-// User data route
-// router.patch('/updateUser', authMiddleware, memoryUpload('/avatar'), updateUser)
-router.patch('/updateUser', authMiddleware, updateUser)
+// Update user data route
+router.patch(
+  '/updateUser',
+  authMiddleware,
+  userMiddleware,
+  memoryUpload.single('avatar'),
+  updateUser,
+)
 
 // Refresh token
-router.post('/refreshToken', authMiddleware, refreshToken)
+router.post('/refreshToken', refreshToken)
 
 // Reset password route
 router.patch('/resetPassword', resetPassword)
 
 // Get all users
-router.get('/', requiredRoles(['superAdmin']), getAllUsers)
+router.get('/', authMiddleware, requiredRoles(['superAdmin']), getAllUsers)
 
 // Delete user
-router.delete('/', requiredRoles(['superAdmin']), deleteUser)
+router.delete('/', authMiddleware, requiredRoles(['superAdmin']), deleteUser)
 
 module.exports = router

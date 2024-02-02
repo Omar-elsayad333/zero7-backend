@@ -9,7 +9,7 @@ const {
   createRefreshToken,
   getTokenExpDate,
   checkRefreshTokenExp,
-} = require('../helpers/token')
+} = require('../handlers/tokenHandlers')
 
 // Login a user
 const loginUser = async (req, res) => {
@@ -94,8 +94,10 @@ const userData = async (req, res) => {
 // Update user data
 const updateUser = async (req, res) => {
   try {
-    console.log(req.body)
-    const user = await usersServices.updateUser(req.token, req.body, req.file)
+    // calling service
+    const user = await usersServices.updateUser(req)
+
+    // send respone
     res.status(200).json({ status: 200, messeage: 'User Updated Successfully', data: user })
   } catch (error) {
     res.status(400).json({ status: 400, message: error })

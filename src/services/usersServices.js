@@ -1,4 +1,10 @@
 const { db } = require('../config/db')
+const { uploadeFileToFirebase } = require('../handlers/storageHandlers')
+const {
+  createAccesToken,
+  createRefreshToken,
+  getTokenExpDate,
+} = require('../handlers/tokenHandlers')
 
 // Login user service
 const loginUser = async (body) => {
@@ -30,23 +36,7 @@ const loginUser = async (body) => {
 // Sign up user service
 const signupUser = async (body) => {
   try {
-    const { firstName, lastName, phoneNumber, email, password, confirmPassword, socialToken } = body
-
-    if (phoneNumber) {
-      const encodedPhoneNumber = phoneNumber.replace('%2B', '+')
-
-      if (encodedPhoneNumber.slice(0, 3) !== '+20') {
-        throw new Error('Phone number not valid')
-      }
-    }
-
-    if (password !== confirmPassword) {
-      throw new Error('Passwords do not match')
-    }
-
-    const user = await db
-      .model('User')
-      .signup(firstName, lastName, email, password, encodedPhoneNumber, socialToken)
+    const user = await db.model('User').signup(body)
 
     // Create new tokens for user
     user.accessToken = await createAccesToken(user._id)
@@ -65,6 +55,8 @@ const signupUser = async (body) => {
       refreshTokenExpireAt: user.refreshTokenExpireAt,
     }
   } catch (error) {
+    console.log(error)
+
     throw new Error(error)
   }
 }
@@ -91,16 +83,42 @@ const socialRegister = async (body) => {
 }
 
 // Update user service
-const updateUser = async (userToken, data, file) => {
+const updateUser = async (req) => {
   try {
-    if (file) data.profileImage = file.path
-    console.log(data)
-    const user = await db.model('User').findOneAndUpdate({ accessToken: userToken }, { ...data })
-    if (!user) {
-      throw new Error('Faild to update user data')
+    if (req.file) {
+      const url = await uploadeFileToFirebase(req.file, 'users')
+
+      const query = { _id: req.userData._id, 'media.name': req.file.fieldname }
+
+      // Define the update operation
+      const update = {
+        ...req.body,
+        $addToSet: {
+          media: { name: req.file.fieldname, path: url },
+        },
+        $set: {
+          'media.$[elem].path': url,
+        },
+      }
+
+      // Set the arrayFilters option to match the specific element in the array
+      const options = {
+        new: true,
+        upsert: true,
+        runValidators: true,
+        arrayFilters: [{ 'elem.name': req.file.fieldname }],
+      }
+
+      const user = await db.model('User').findOneAndUpdate(query, update, options)
+      return user
+    } else {
+      const user = await db
+        .model('User')
+        .findOneAndUpdate({ _id: req.userData._id }, { ...req.body })
+      return user
     }
-    return user
   } catch (error) {
+    console.log(error)
     throw new Error('Faild to update user data')
   }
 }
